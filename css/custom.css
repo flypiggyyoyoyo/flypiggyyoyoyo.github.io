@@ -170,10 +170,15 @@
   }
   
   /* 头图透明 */
-  #page-header {
+  
+  /*#page-header {*/
     /*background: transparent !important;*/
-    background: rgba(255, 255, 255, 0.7) !important;
+    /*background: rgba(255, 255, 255, 0.1) !important;
+  }*/
+  #page-header {
+    background: transparent !important;
   }
+
   
   #rightside > div > button {
     border-radius: 5px;
