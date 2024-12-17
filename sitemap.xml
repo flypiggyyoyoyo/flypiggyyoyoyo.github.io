@@ -4,7 +4,16 @@
   <url>
     <loc>http://example.com/manifest.json</loc>
     
-    <lastmod>2024-12-05</lastmod>
+    <lastmod>2024-12-17</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://example.com/2024/12/13/MySQL%E7%AE%80%E6%98%8E%E6%95%99%E7%A8%8B/</loc>
+    
+    <lastmod>2024-12-17</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -13,7 +22,7 @@
   <url>
     <loc>http://example.com/2024/12/04/go-Gin%E7%AE%80%E6%98%8E%E6%95%99%E7%A8%8B/</loc>
     
-    <lastmod>2024-12-05</lastmod>
+    <lastmod>2024-12-17</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -22,7 +31,7 @@
   <url>
     <loc>http://example.com/2024/12/02/go-net&http%E6%A0%87%E5%87%86%E5%BA%93%E7%AE%80%E6%98%8E%E6%95%99%E7%A8%8B/</loc>
     
-    <lastmod>2024-12-05</lastmod>
+    <lastmod>2024-12-17</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -31,7 +40,7 @@
   <url>
     <loc>http://example.com/2024/11/26/go-%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/</loc>
     
-    <lastmod>2024-12-05</lastmod>
+    <lastmod>2024-12-17</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -40,7 +49,7 @@
   <url>
     <loc>http://example.com/2024/11/25/go-%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/</loc>
     
-    <lastmod>2024-12-05</lastmod>
+    <lastmod>2024-12-17</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -49,7 +58,7 @@
   <url>
     <loc>http://example.com/2024/11/25/go-%E8%AF%AD%E8%A8%80/</loc>
     
-    <lastmod>2024-12-05</lastmod>
+    <lastmod>2024-12-17</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -58,7 +67,7 @@
   <url>
     <loc>http://example.com/categories/index.html</loc>
     
-    <lastmod>2024-12-05</lastmod>
+    <lastmod>2024-12-17</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -67,29 +76,36 @@
 
   <url>
     <loc>http://example.com/</loc>
-    <lastmod>2024-12-05</lastmod>
+    <lastmod>2024-12-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
   
   <url>
+    <loc>http://example.com/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%EF%BC%8CMySQL/</loc>
+    <lastmod>2024-12-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>http://example.com/tags/go/</loc>
-    <lastmod>2024-12-05</lastmod>
+    <lastmod>2024-12-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://example.com/tags/Gin/</loc>
-    <lastmod>2024-12-05</lastmod>
+    <lastmod>2024-12-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://example.com/tags/%E5%90%8E%E7%AB%AF/</loc>
-    <lastmod>2024-12-05</lastmod>
+    <lastmod>2024-12-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
@@ -98,7 +114,7 @@
   
   <url>
     <loc>http://example.com/categories/Go%E5%AD%A6%E4%B9%A0/</loc>
-    <lastmod>2024-12-05</lastmod>
+    <lastmod>2024-12-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
