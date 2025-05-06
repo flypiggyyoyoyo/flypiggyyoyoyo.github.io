@@ -4,6 +4,25 @@
   
     
     <entry>
+      <title>MySQL45讲笔记(1)</title>
+      <link href="/2025/05/06/MySQL45%E8%AE%B2%E7%AC%94%E8%AE%B0(1)/"/>
+      <url>/2025/05/06/MySQL45%E8%AE%B2%E7%AC%94%E8%AE%B0(1)/</url>
+      
+        <content type="html"><![CDATA[<blockquote><p>自存笔记，学习MySQL实战45讲</p></blockquote><hr><h1 id="第一讲：一条SQL查询语句是如何执行的"><a href="#第一讲：一条SQL查询语句是如何执行的" class="headerlink" title="第一讲：一条SQL查询语句是如何执行的"></a>第一讲：一条SQL查询语句是如何执行的</h1><h2 id="MySQL架构理解"><a href="#MySQL架构理解" class="headerlink" title="MySQL架构理解"></a>MySQL架构理解</h2><p>首先我们知道，MySQL是分为Server层和存储引擎层两部分的。   </p><p>Server层里有连接器、查询缓存（MySQL8.0后被删除）、分析器、优化器、执行器等，负责构建MySQL的大部分功能；</p><p>存储引擎层采用插件式架构，可以支持不同的存储引擎，负责存储数据。通俗来讲，存储引擎层就像一个包裹，负责把存储引擎打包到一起，并向Server层提供读写接口</p><p>注意，不同的存储引擎<strong>共用一个</strong>Server层。也就是说，MySQL架构中，有一个Server层，一个存储引擎层，所有存储引擎公用一个Server层</p><h2 id="执行过程"><a href="#执行过程" class="headerlink" title="执行过程"></a>执行过程</h2><h3 id="连接器"><a href="#连接器" class="headerlink" title="连接器"></a>连接器</h3><p>连接命令一般这么写：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -h<span class="variable">$ip</span> -P<span class="variable">$port</span> -u<span class="variable">$user</span> -p</span><br></pre></td></tr></table></figure><p>mysql是客户端工具，用来链接服务端。当完成TCP三次握手后，开始验证用户身份，用的是输入的<strong>用户名</strong>和<strong>密码</strong></p><ul><li>若用户名或者密码错误，则报错<code>Access denied for user</code>，然后结束</li><li>若正确，则连接器会去权限表中查找用户拥有的权限。<strong>此后</strong>，这个链接中权限的判断逻辑，都<strong>依赖此时读到的权限</strong></li></ul><p>一个用户建立连接后，即时用管理员用户对这个用户权限做修改，也不会影响现存的链接，在建立新的链接才会使用新的权限设置</p><p>一个链接长时间不用会自动断开，需要重连才能执行请求。建议使用长连接，并定期断开再重连、执行 mysql_reset_connection 来重新初始化连接资源</p><h3 id="查询缓存"><a href="#查询缓存" class="headerlink" title="查询缓存"></a>查询缓存</h3><p>连接建立之后，MySQL拿到查询请求，首先会去查询缓存看看，之前是否有执行过这条语句。之前执行过的语句+结果会以键值对形式存入内存。如果能命中key，则value会被直接返回</p><p>对更新压力大的数据库来说命中率极低，因为只要有对一个表的更新，这个表上所有的查询缓存都会被清空。</p><p><strong>MySQL8.0版本开始直接删掉这块功能了</strong></p><h3 id="分析器"><a href="#分析器" class="headerlink" title="分析器"></a>分析器</h3><p>未命中或没用查询缓存，则分析器发力了</p><p>先做<strong>词法分析</strong>，根据输入的SQL语句，识别出里面字符串是什么。把输入的“select”识别出这是一个查询语句，把输入的“ID”识别成“列ID”</p><p>根据词法分析的结果和语法规则，进行<strong>语法分析</strong>，分析输入的语句是否合法</p><h3 id="优化器"><a href="#优化器" class="headerlink" title="优化器"></a>优化器</h3><p>经过分析器，MySQL知道你要做什么。再用优化器选择方案—怎么做</p><p>优化器是决定再多个索引的时候使用哪个索引，在多表关联的时候决定各个表的关联顺序</p><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> t1 <span class="keyword">join</span> t2 <span class="keyword">using</span>(ID)  <span class="keyword">where</span> t1.c<span class="operator">=</span><span class="number">10</span> <span class="keyword">and</span> t2.d<span class="operator">=</span><span class="number">20</span>;</span><br></pre></td></tr></table></figure><ul><li><p>既可以先从表 t1 里面取出 c=10 的记录的 ID 值，再根据 ID 值关联到表 t2，再判断 t2 里面 d 的值是否等于 20。</p></li><li><p>也可以先从表 t2 里面取出 d=20 的记录的 ID 值，再根据 ID 值关联到 t1，再判断 t1 里面 c 的值是否等于 10。</p></li></ul><p>这两种执行方法的逻辑结果是一样的，但是执行的效率会有不同，而优化器的作用就是决定选择使用哪一个方案。</p><h3 id="执行器"><a href="#执行器" class="headerlink" title="执行器"></a>执行器</h3><p>MySQL通过分析器知道做什么，通过优化器知道怎么做，现在进入执行阶段</p><p>执行之前会先判断用户对这个表有没有执行权限</p><p>执行流程对比：</p><p>无索引情况，则全表扫描，具体流程如下：</p><ul><li>调用存储引擎接口获取表的第一行数据</li><li>检查该行数据是否满足查询条件（例如 ID = 10），如果满足则将其加入结果集；若不满足则跳过该行</li><li>继续调用存储引擎接口获取下一行数据，重复步骤 2，直到遍历完表中的所有行</li><li>最后将满足条件的所有行组成结果集返回给客户端</li></ul><p>有索引情况，利用索引来快速定位满足条件的数据，具体流程如下：</p><ul><li>通过索引结构快速定位到满足查询条件的第一行数据的位置</li><li>调用存储引擎接口获取该行数据并加入结果集</li><li>利用索引继续查找满足条件的下一行数据，重复步骤 2，直到没有满足条件的行</li><li>将满足条件的所有行组成结果集返回给客户端。</li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> MySQL45讲 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Docker（一）理论知识</title>
       <link href="/2025/04/09/Docker%EF%BC%88%E4%B8%80%EF%BC%89%E7%90%86%E8%AE%BA%E7%9F%A5%E8%AF%86/"/>
       <url>/2025/04/09/Docker%EF%BC%88%E4%B8%80%EF%BC%89%E7%90%86%E8%AE%BA%E7%9F%A5%E8%AF%86/</url>
