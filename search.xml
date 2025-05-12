@@ -4,6 +4,25 @@
   
     
     <entry>
+      <title>MySQL笔记(3)：事务隔离</title>
+      <link href="/2025/05/12/MySQL%E7%AC%94%E8%AE%B0(3)%EF%BC%9A%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB/"/>
+      <url>/2025/05/12/MySQL%E7%AC%94%E8%AE%B0(3)%EF%BC%9A%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB/</url>
+      
+        <content type="html"><![CDATA[<blockquote><p>自存笔记，学习MySQL实战45讲</p></blockquote><hr><h1 id="多事务同时执行的问题"><a href="#多事务同时执行的问题" class="headerlink" title="多事务同时执行的问题"></a>多事务同时执行的问题</h1><ul><li>脏读：某个事务读取到了修改完未提交的数据</li><li>不可重复读：同一事务，两次读取某行数据，结果不一致（针对<strong>单行数据</strong>）</li><li>幻读：同一事物，两次相同的查询，结果集不一样（符合条件的记录被<strong>新增</strong>或<strong>删除</strong></li></ul><h1 id="隔离级别"><a href="#隔离级别" class="headerlink" title="隔离级别"></a>隔离级别</h1><h2 id="读未提交"><a href="#读未提交" class="headerlink" title="读未提交"></a>读未提交</h2><ul><li>一个事务还未提交时，它做的更改就可以被看见</li><li>自动实现</li><li>会出现“三读”问题</li></ul><h2 id="读已提交"><a href="#读已提交" class="headerlink" title="读已提交"></a>读已提交</h2><ul><li>一个事务提交后，它做的更改才可被看见</li><li>mvcc实现</li><li>会出现不可重复读、幻读问题</li></ul><h2 id="可重复读"><a href="#可重复读" class="headerlink" title="可重复读"></a>可重复读</h2><ul><li>一个事务从启动到结束，看到的数据始终一致</li><li>mvcc实现</li><li>按照SQL标准，可重复读的隔离级别仅能保证“事务内多次读取同一行数据，数据内容一致”（解决不可重复读），不能保证“结果集的行数一致”（幻读）</li><li>innoDB通过mvcc+间隙锁解决不可重复读和幻读问题</li></ul><h2 id="串行化"><a href="#串行化" class="headerlink" title="串行化"></a>串行化</h2><ul><li>对每一行数据，读操作加读锁，写操作加写锁，当读写锁冲突时，后访问的事务必须等待前一个事务结束才能继续执行</li><li>加锁实现</li><li>不出问题</li></ul><h1 id="隔离的实现——MVCC"><a href="#隔离的实现——MVCC" class="headerlink" title="隔离的实现——MVCC"></a>隔离的实现——MVCC</h1><ul><li>多版本并发控制</li><li>通过为数据行维护多个版本，让读操作可以不加锁的访问历史数据，避免读写冲突</li></ul><h2 id="大白话"><a href="#大白话" class="headerlink" title="大白话"></a>大白话</h2><p><strong>核心思路：留存数据的历史记录</strong></p><p>假设有一张学生成绩表，某行数据为<code>张三，数学，90分</code>  </p><p>当数据被修改时，比如改到85分，<strong>不直接覆盖数据</strong>，而是：  </p><ul><li>把旧数据存在“历史版本”（undolog）</li><li>新数据写在当前版本，并记录“谁改的”（事务id），这样数据有了多个版本：旧版本（90分，事务1改的）、新版本（85，事务二改的）</li></ul><p><strong>读数据时：根据 “时间线” 决定看哪个版本</strong></p><p>每个事务启动时，就像拿到一个 “时间戳”（事务 ID，比如 100、200、300，递增的）</p><p>读数据时，数据库会生成一个 “快照”（Read View），记录两件事：</p><ul><li>当前有哪些事务还没提交（比如事务 200、300 在运行中）</li><li>我自己的事务 ID 是多少（比如 100）</li></ul><p><strong>然后按规则判断：</strong></p><ul><li>如果旧版本的事务 ID 比我早（比如 100 之前的 99），说明这个版本在我启动前就提交了，我能看到它（旧数据有效）</li><li>如果新版本的事务 ID 比我晚（比如 200、300），说明这个版本是我启动后才改的，而且对应的事务还没提交，我看不到它（只能看到旧数据）</li><li>如果新版本的事务 ID 和我同时存在（比如我是 100，它是 150 但没提交），它还没写完，我也看不到，只能看旧数据。</li></ul><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>MVCC通过“多版本数据+读视图”实现无锁读技术，核心是让读操作访问历史版本而非实时数据，从而在保证事务隔离性的同时提升并发能力</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> MySQL45讲 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>MySQL笔记(2)：一条SQL更新的执行</title>
       <link href="/2025/05/07/MySQL%E7%AC%94%E8%AE%B0(2)%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9B%B4%E6%96%B0%E7%9A%84%E6%89%A7%E8%A1%8C/"/>
       <url>/2025/05/07/MySQL%E7%AC%94%E8%AE%B0(2)%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9B%B4%E6%96%B0%E7%9A%84%E6%89%A7%E8%A1%8C/</url>
