@@ -4,6 +4,25 @@
   
     
     <entry>
+      <title>MySQL笔记(5)行锁表锁全局锁</title>
+      <link href="/2025/05/15/MySQL%E7%AC%94%E8%AE%B0(5)%EF%BC%9A%E8%A1%8C%E9%94%81%E8%A1%A8%E9%94%81%E5%85%A8%E5%B1%80%E9%94%81/"/>
+      <url>/2025/05/15/MySQL%E7%AC%94%E8%AE%B0(5)%EF%BC%9A%E8%A1%8C%E9%94%81%E8%A1%A8%E9%94%81%E5%85%A8%E5%B1%80%E9%94%81/</url>
+      
+        <content type="html"><![CDATA[<blockquote><p>自存笔记，学习MySQL实战45讲</p></blockquote><hr><h1 id="第五讲：全局锁和表级锁"><a href="#第五讲：全局锁和表级锁" class="headerlink" title="第五讲：全局锁和表级锁"></a>第五讲：全局锁和表级锁</h1><h2 id="全局锁"><a href="#全局锁" class="headerlink" title="全局锁"></a>全局锁</h2><ul><li>一种将整个数据库实例锁定的机制</li><li>会组织其他事务对数据库的读写访问</li><li>一般在逻辑备份中使用</li></ul><h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><ul><li><p>在InnoDB中可以使用 mysqldump 的 —single-transaction 选项，结合 InnoDB 的 MVCC 机制实现一致性备份，无需全局锁</p>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldump -u root -p --all-databases --single-transaction &gt; backup.sql</span><br></pre></td></tr></table></figure></li><li><p>在不支持事务的引擎中</p>  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">FLUSH TABLES <span class="keyword">WITH</span> READ LOCK;</span><br><span class="line"><span class="comment">-- 执行备份或其他需要全局一致性的操作</span></span><br><span class="line">UNLOCK TABLES;</span><br></pre></td></tr></table></figure></li></ul><pre><code><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SET</span> <span class="keyword">GLOBAL</span> READ_ONLY<span class="operator">=</span><span class="number">1</span>;</span><br><span class="line"><span class="comment">-- 执行操作</span></span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">GLOBAL</span> READ_ONLY<span class="operator">=</span><span class="number">0</span>;</span><br></pre></td></tr></table></figure>**建议使用FTWRL**</code></pre><h2 id="表级锁"><a href="#表级锁" class="headerlink" title="表级锁"></a>表级锁</h2><p><strong>读锁可兼容读锁，写锁阻塞所有锁</strong></p><h3 id="表锁"><a href="#表锁" class="headerlink" title="表锁"></a>表锁</h3><ul><li>锁定粒度为整张表</li><li>在存储引擎层加锁</li><li>不仅会对表的写/读加锁，获取到锁的线程也只能对限定的表做限定的写/读操作</li></ul><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LOCK TABLES table_name READ<span class="operator">/</span>WRITE</span><br></pre></td></tr></table></figure><h3 id="元数据锁"><a href="#元数据锁" class="headerlink" title="元数据锁"></a>元数据锁</h3><ul><li>在表结构发生变更时，保护表元数据（结构、权限等）</li><li>在server层</li><li>MySQL会在执行SQL语句时隐式获取队形的MDL锁，无需手动操作<ul><li>对一个表做增删改查时，加MDL读锁</li><li>对表结构变更时，加MDL写锁</li></ul></li></ul><h2 id="对热点表DDL变更的挑战"><a href="#对热点表DDL变更的挑战" class="headerlink" title="对热点表DDL变更的挑战"></a>对热点表DDL变更的挑战</h2><ul><li>热点表：数据量小但是请求频繁</li><li>DDL变更：设计库表结构修改，create/drop等</li></ul><h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><ul><li>MDL锁阻塞：长事务持有MDL读锁，导致DDL所需的MDL写锁无法获取，造成阻塞</li><li>传统方案局限<ul><li>KILL事务：仅能暂时释放锁，但是热点表的新请求会立即持有锁，无法根治</li><li>强制阻塞DDL：一直等待直到获取锁，导致请求大量超时，影响可用性</li></ul></li></ul><h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><p><strong>NOWAIT/WAIT n（MariaDB/AliSQL 支持）</strong></p><ul><li>ALTER TABLE … NOWAIT<ul><li>立即尝试获取 MDL 写锁，若当前无法获取（存在活跃读锁），则直接报错返回，不等待</li></ul></li><li>ALTER TABLE … WAIT n<ul><li>尝试获取 MDL 写锁，最多等待n秒，若超时仍未获取锁，则报错返回。</li></ul></li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> MySQL45讲 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>SQL笔记</title>
       <link href="/2025/05/14/SQL%E7%AC%94%E8%AE%B0/"/>
       <url>/2025/05/14/SQL%E7%AC%94%E8%AE%B0/</url>
