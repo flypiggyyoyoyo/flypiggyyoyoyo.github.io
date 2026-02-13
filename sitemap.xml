@@ -11,6 +11,15 @@
   </url>
   
   <url>
+    <loc>http://example.com/link/index.html</loc>
+    
+    <lastmod>2026-02-13</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://example.com/2025/07/02/Java-HashMap%E6%B5%85%E6%9E%90/</loc>
     
     <lastmod>2026-02-13</lastmod>
@@ -146,7 +155,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/2025/07/31/redis%E5%9F%BA%E7%A1%80/</loc>
+    <loc>http://example.com/2025/05/18/netty%E6%A1%86%E6%9E%B6%E7%AC%94%E8%AE%B0/</loc>
     
     <lastmod>2026-02-13</lastmod>
     
@@ -155,7 +164,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/2025/05/18/netty%E6%A1%86%E6%9E%B6%E7%AC%94%E8%AE%B0/</loc>
+    <loc>http://example.com/2025/07/31/redis%E5%9F%BA%E7%A1%80/</loc>
     
     <lastmod>2026-02-13</lastmod>
     
